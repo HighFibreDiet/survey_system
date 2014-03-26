@@ -16,6 +16,7 @@ def welcome
 end
 
 def menu
+  system('clear')
   choice = nil
   until choice == 'e'
     puts "Press 'd' to enter designer menu"
@@ -37,6 +38,7 @@ end
 
 
 def designer_menu
+  system('clear')
   user_choice = nil
   until user_choice == 'm'
   puts "Press 'n' to create a new survey"
@@ -76,7 +78,7 @@ def add_survey
     when 'e'
       no_more_questions = true
     else
-      new_question = Question.create(:description => question_description, :survey_id => new_survey.id)
+      new_question = Question.new(:description => question_description, :survey_id => new_survey.id)
       no_more_choices = false
       until no_more_choices
         puts "Enter an answer choice for this questions, or press 'e' if you are done adding choices."
@@ -85,10 +87,15 @@ def add_survey
         when 'e'
           no_more_choices = true
         else
-          new_choice = Choice.create(:description => answer_choice, :question_id => new_question.id)
+          new_choice = new_question.choices.new(:description => answer_choice)
         end
       end
-      puts "The question #{new_question.description} was created with #{new_question.choices.length} choices"
+      if new_question.save == true
+        new_survey.save
+        puts "The question #{new_question.description} was created with #{new_question.choices.length} choices"
+      else
+        puts "Your question must have choices. Please try again. "
+      end
     end
   end
   puts "Your survey, #{new_survey.name} was successfully created with #{new_survey.questions.length} questions."
@@ -152,15 +159,20 @@ def survey_results
   puts "Chose the number of the survey you would like to view:"
   survey_choice = gets.chomp
   selected_survey = Survey.find_by(:id=> survey_choice)
-  selected_survey.questions.each do |question|
-    puts "Question: #{question.description}"
-    question.choices.each do |choice|
-      puts "\t #{choice.description}  \t  = #{ 100 * (choice.number_of_responses / question.total_number_of_responses)}%"
+  if selected_survey.responses.length == 0
+    puts "You may only view results for surveys that have responses"
+  else
+    selected_survey.questions.each do |question|
+      puts "Question: #{question.description}"
+      question.choices.each do |choice|
+        puts "\t #{choice.description}       \t  = #{choice.percentage_of_question}% and with \t #{choice.number_of_responses} responses."
+      end
     end
   end
- end
+end
 
 welcome
+
 
 
 
