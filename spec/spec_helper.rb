@@ -4,7 +4,6 @@ require 'survey'
 require 'question'
 require 'choice'
 require 'response'
-require 'survey_taker'
 require 'shoulda-matchers'
 
 database_configurations = YAML::load(File.open('./db/config.yml'))
@@ -17,6 +16,5 @@ RSpec.configure do |config|
     Survey.all.each { |survey| survey.destroy }
     Choice.all.each { |choice| choice.destroy }
     Response.all.each { |response| response.destroy }
-    Survey_taker.all.each { |survey_taker| survey_taker.destroy }
   end
 end

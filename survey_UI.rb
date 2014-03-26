@@ -2,7 +2,7 @@ require 'active_record'
 require './lib/survey'
 require './lib/question'
 require './lib/choice'
-require './lib/survey_taker'
+# require './lib/survey_taker'
 require './lib/response'
 
 
@@ -42,6 +42,7 @@ def designer_menu
   puts "Press 'n' to create a new survey"
   puts "Press 'l' to list all of your surveys"
   puts "Press 'q' to list surveys with questions"
+  puts "Press 'r' to view survey results"
   puts "Press 'm' to return to the main menu"
   user_choice = gets.chomp
     case user_choice
@@ -51,6 +52,8 @@ def designer_menu
       list_surveys_questions
     when 'l'
       list_surveys
+    when 'r'
+      survey_results
     when 'm'
       puts "Thanks!"
     else
@@ -121,7 +124,7 @@ def taker_menu
   survey_choice = gets.chomp.to_i
   selected_survey = Survey.find_by(:id=> survey_choice)
 
-  current_survey_taker = Survey_taker.create(:survey_id => selected_survey.id)
+  # current_survey_taker = Survey_taker.create(:survey_id => selected_survey.id)
 
   puts "The #{selected_survey.name} survey begins now!"
   puts "After each question is displayed, enter the number of your chosen response.\n"
@@ -133,7 +136,7 @@ def taker_menu
     end
     answer_choice = gets.chomp.to_i
     choice_id = current_question.choices[answer_choice - 1].id
-    response = Response.create(:choice_id => choice_id, :survey_taker_id => current_survey_taker.id)
+    response = Response.create(:choice_id => choice_id)
     puts "Hit enter to move on to the next question."
     gets
   end
@@ -144,6 +147,25 @@ def taker_menu
   end
 end
 
+def survey_results
+  list_surveys
+  puts "Chose the number of the survey you would like to view:"
+  survey_choice = gets.chomp
+  selected_survey = Survey.find_by(:id=> survey_choice)
+  selected_survey.questions.each do |question|
+    puts "Question: #{question.description}"
+    question.choices.each do |choice|
+      puts "\t #{choice.description}  \t  = #{ 100 * (choice.number_of_responses / question.total_number_of_responses)}%"
+    end
+  end
+ end
+
 welcome
+
+
+
+
+
+
 
 
